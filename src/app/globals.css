@@ -1,0 +1,202 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root, .dark {
+  /* Warm dark charcoal */
+  --background: 24 8% 5%;
+  --foreground: 40 20% 93%;
+
+  --primary: 38 90% 55%;
+  --primary-foreground: 24 8% 5%;
+
+  --secondary: 24 8% 12%;
+  --secondary-foreground: 40 20% 93%;
+
+  --muted: 30 10% 50%;
+  --muted-foreground: 30 10% 50%;
+
+  --card: 24 8% 8%;
+  --card-foreground: 40 20% 93%;
+  --card-border: 24 8% 15%;
+
+  --border: 24 8% 15%;
+  --input: 24 8% 12%;
+  --ring: 38 90% 55%;
+
+  --accent: 350 75% 60%;
+  --accent-foreground: 40 20% 93%;
+
+  --destructive: 0 62.8% 40%;
+  --destructive-foreground: 40 20% 93%;
+
+  --popover: 24 8% 8%;
+  --popover-foreground: 40 20% 93%;
+  --popover-border: 24 8% 15%;
+
+  --radius: 0.875rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground overflow-x-hidden;
+    cursor: none;
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(38 90% 55% / 0.5);
+  }
+}
+
+/* Gradient text shimmer */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    hsl(40 20% 93%) 0%,
+    hsl(38 90% 65%) 30%,
+    hsl(350 75% 65%) 60%,
+    hsl(38 90% 65%) 80%,
+    hsl(40 20% 93%) 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 6s linear infinite;
+}
+
+/* Marquee */
+.marquee-track {
+  animation: marquee 20s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* ===== SVG AVATAR PART ANIMATIONS ===== */
+@keyframes body-idle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+@keyframes body-run {
+  0%, 100% { transform: rotate(-4deg) translateY(0); }
+  50% { transform: rotate(4deg) translateY(1px); }
+}
+@keyframes body-jump {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  30% { transform: scaleY(1.06) scaleX(0.95); }
+  60% { transform: scaleY(0.96) scaleX(1.04); }
+}
+@keyframes body-laugh {
+  0%, 100% { transform: rotate(0deg) scaleX(1); }
+  25% { transform: rotate(-3deg) scaleX(1.03); }
+  75% { transform: rotate(3deg) scaleX(0.98); }
+}
+@keyframes body-celebrate {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-5deg) scale(1.04); }
+  75% { transform: rotate(5deg) scale(1.04); }
+}
+@keyframes body-wave {
+  0%, 100% { transform: rotate(0deg); }
+  30% { transform: rotate(2deg); }
+  60% { transform: rotate(-1deg); }
+}
+@keyframes larm-run {
+  0%, 100% { transform: rotate(40deg); }
+  50% { transform: rotate(-40deg); }
+}
+@keyframes rarm-run {
+  0%, 100% { transform: rotate(-40deg); }
+  50% { transform: rotate(40deg); }
+}
+@keyframes larm-wave {
+  0%, 100% { transform: rotate(-10deg) translateY(0); }
+  25% { transform: rotate(-60deg) translateY(-8px); }
+  75% { transform: rotate(-20deg) translateY(-4px); }
+}
+@keyframes arm-celebrate {
+  0%, 100% { transform: rotate(-50deg); }
+  50% { transform: rotate(-80deg); }
+}
+@keyframes arm-laugh {
+  0%, 100% { transform: rotate(10deg); }
+  50% { transform: rotate(30deg); }
+}
+@keyframes arm-jump {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(-60deg); }
+}
+@keyframes lleg-run {
+  0%, 100% { transform: rotate(-30deg); }
+  50% { transform: rotate(30deg); }
+}
+@keyframes rleg-run {
+  0%, 100% { transform: rotate(30deg); }
+  50% { transform: rotate(-30deg); }
+}
+@keyframes leg-jump {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(20deg); }
+}
+@keyframes head-run {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes head-laugh {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  25% { transform: scale(1.05) rotate(-4deg); }
+  75% { transform: scale(1.05) rotate(4deg); }
+}
+@keyframes head-celebrate {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  30% { transform: rotate(-8deg) translateY(-3px); }
+  70% { transform: rotate(8deg) translateY(-3px); }
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.95); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+@keyframes shadow-jump {
+  0%, 100% { transform: scaleX(1); opacity: 0.5; }
+  50% { transform: scaleX(0.5); opacity: 0.2; }
+}
+
+.avatar-body-idle     { animation: body-idle 2.5s ease-in-out infinite; }
+.avatar-body-run      { animation: body-run 0.28s ease-in-out infinite; }
+.avatar-body-jump     { animation: body-jump 0.5s ease-in-out infinite; }
+.avatar-body-laugh    { animation: body-laugh 0.55s ease-in-out infinite; }
+.avatar-body-celebrate{ animation: body-celebrate 0.7s ease-in-out infinite; }
+.avatar-body-wave     { animation: body-wave 1.5s ease-in-out infinite; }
+
+.avatar-larm-run      { animation: larm-run 0.28s ease-in-out infinite; }
+.avatar-rarm-run      { animation: rarm-run 0.28s ease-in-out infinite; }
+.avatar-larm-wave     { animation: larm-wave 1.2s ease-in-out infinite; }
+.avatar-arm-celebrate { animation: arm-celebrate 0.6s ease-in-out infinite; }
+.avatar-arm-laugh     { animation: arm-laugh 0.55s ease-in-out infinite; }
+.avatar-arm-jump      { animation: arm-jump 0.5s ease-in-out infinite; }
+
+.avatar-lleg-run      { animation: lleg-run 0.28s ease-in-out infinite; }
+.avatar-rleg-run      { animation: rleg-run 0.28s ease-in-out infinite; }
+.avatar-leg-jump      { animation: leg-jump 0.5s ease-in-out infinite; }
+
+.avatar-head-run      { animation: head-run 0.28s ease-in-out infinite; }
+.avatar-head-laugh    { animation: head-laugh 0.55s ease-in-out infinite; }
+.avatar-head-celebrate{ animation: head-celebrate 0.7s ease-in-out infinite; }
+
+.avatar-glow-pulse    { animation: glow-pulse 1s ease-in-out infinite; }
+.avatar-shadow-jump   { animation: shadow-jump 0.5s ease-in-out infinite; }
