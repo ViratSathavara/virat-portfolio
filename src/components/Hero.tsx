@@ -209,53 +209,82 @@ export function Hero() {
           className="flex justify-center md:justify-end"
         >
           <div className="relative">
+            {/* Rotating ambient glow blob */}
             <motion.div
-              className="absolute inset-[-40px] rounded-full"
+              className="absolute inset-[-50px] rounded-full"
               style={{
                 background:
-                  "radial-gradient(circle, hsl(38 90% 55% / 0.12) 0%, transparent 70%)",
+                  "radial-gradient(circle, hsl(38 90% 55% / 0.18) 0%, hsl(350 75% 60% / 0.08) 50%, transparent 70%)",
               }}
-              animate={{ scale: [1, 1.1, 1], rotate: [0, 180, 360] }}
+              animate={{ scale: [1, 1.12, 1], rotate: [0, 180, 360] }}
               transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
             />
 
+            {/* Spinning orbit ring with dots */}
             <motion.div
-              className="absolute inset-[-20px] rounded-full border border-primary/10"
+              className="absolute inset-[-20px] rounded-full border border-primary/15"
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
               {[0, 90, 180, 270].map((deg, i) => (
                 <motion.div
                   key={i}
-                  className="absolute w-2 h-2 rounded-full bg-primary/40"
+                  className="absolute w-2 h-2 rounded-full"
                   style={{
                     top: "50%",
                     left: "50%",
                     transform: `rotate(${deg}deg) translateX(50px) translate(-50%, -50%)`,
+                    background:
+                      i % 2 === 0
+                        ? "hsl(38 90% 55% / 0.7)"
+                        : "hsl(350 75% 60% / 0.6)",
+                    boxShadow:
+                      i % 2 === 0
+                        ? "0 0 6px hsl(38 90% 55% / 0.8)"
+                        : "0 0 6px hsl(350 75% 60% / 0.7)",
                   }}
-                  animate={{ scale: [1, 1.5, 1] }}
+                  animate={{ scale: [1, 1.6, 1] }}
                   transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
                 />
               ))}
             </motion.div>
 
+            {/* Animated gradient border */}
             <motion.div
               className="absolute inset-[-2px] rounded-2xl"
               style={{
                 background:
-                  "linear-gradient(135deg, hsl(38 90% 55% / 0.5), hsl(350 75% 60% / 0.3), transparent)",
+                  "linear-gradient(135deg, hsl(38 90% 55% / 0.7), hsl(350 75% 60% / 0.5), hsl(200 70% 60% / 0.3), hsl(38 90% 55% / 0.6))",
+                backgroundSize: "300% 300%",
               }}
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 3, repeat: Infinity }}
+              animate={{
+                opacity: [0.7, 1, 0.7],
+                backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
+
+            {/* Outer ambient glow */}
+            <motion.div
+              className="absolute inset-[-12px] rounded-2xl"
+              style={{
+                background:
+                  "linear-gradient(135deg, hsl(38 90% 55% / 0.15), hsl(350 75% 60% / 0.08), transparent)",
+                filter: "blur(12px)",
+              }}
+              animate={{ opacity: [0.5, 0.9, 0.5] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+            />
+
             <Image
-              src="/avatar.png"
+              src="/me/me.png"
               alt="Virat Sathavara — Frontend Engineer"
               width={288}
               height={360}
-              className="relative w-60 h-[300px] md:w-72 md:h-[360px] object-cover object-top rounded-2xl border border-primary/20"
+              className="relative w-60 h-[300px] md:w-72 md:h-[360px] object-cover object-top rounded-2xl border border-primary/30"
               style={{
-                filter: "drop-shadow(0 0 20px hsl(38 90% 55% / 0.3))",
+                filter:
+                  "drop-shadow(0 0 28px hsl(38 90% 55% / 0.4)) drop-shadow(0 0 8px hsl(350 75% 60% / 0.2))",
               }}
               priority
             />
