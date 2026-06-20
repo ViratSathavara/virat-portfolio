@@ -164,7 +164,7 @@ const personalProjects: Project[] = [
     techType: "frontend",
     projectType: "personal",
     activelyWorking: true,
-    liveLink: "https://virat-sathavara.netlify.app/",
+    liveLink: "https://viratsathavara.in/",
     sourceCode: "https://github.com/ViratSathavara/Virat-Portffolio",
     Icon: Globe,
     gradient: "from-blue-500/10 to-cyan-500/5",
