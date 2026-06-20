@@ -13,14 +13,14 @@ export function Contact() {
   };
 
   return (
-    <section id="contact" className="py-32 px-6 bg-background">
+    <section id="contact" className="py-16 md:py-32 px-6 bg-background">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          className="mb-16"
+          className="mb-8 md:mb-16"
         >
           <span className="text-sm font-semibold tracking-widest text-muted uppercase mb-4 block">
             // CONTACT
@@ -34,7 +34,7 @@ export function Contact() {
           </p>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-16">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-16">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -168,14 +168,6 @@ export function Contact() {
                     className="text-xl font-medium text-foreground hover:text-primary transition-colors inline-flex items-center"
                   >
                     GitHub <span className="ml-2 text-muted">↗</span>
-                  </a>
-                  <a
-                    href="https://virat-sathavara.netlify.app/"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xl font-medium text-foreground hover:text-primary transition-colors inline-flex items-center"
-                  >
-                    Portfolio <span className="ml-2 text-muted">↗</span>
                   </a>
                 </div>
               </div>

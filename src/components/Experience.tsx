@@ -307,10 +307,10 @@ export function Experience() {
   const eduInView = useInView(eduRef, { once: true, margin: "-80px" });
 
   return (
-    <section id="experience" className="py-32 px-6 relative">
+    <section id="experience" className="py-16 md:py-32 px-6 relative">
       <div className="max-w-4xl mx-auto">
         {/* Experience */}
-        <div ref={headerRef} className="mb-16">
+        <div ref={headerRef} className="mb-8 md:mb-16">
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={headerInView ? { opacity: 1, y: 0 } : {}}
@@ -329,7 +329,7 @@ export function Experience() {
           </motion.h2>
         </div>
 
-        <div className="space-y-4 mb-24">
+        <div className="space-y-4 mb-10 md:mb-24">
           {experiences.map((exp, i) => (
             <ExperienceCard key={exp.id} exp={exp} index={i} />
           ))}
@@ -349,7 +349,7 @@ export function Experience() {
             initial={{ opacity: 0, y: 24 }}
             animate={eduInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-12"
+            className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 md:mb-12"
           >
             Where I studied.
           </motion.h2>
@@ -366,7 +366,7 @@ export function Experience() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-60px" }}
           transition={{ duration: 0.6 }}
-          className="mt-16 bg-card border border-border rounded-[var(--radius)] p-6"
+          className="mt-8 md:mt-16 bg-card border border-border rounded-[var(--radius)] p-6"
         >
           <p className="text-xs font-semibold tracking-[0.2em] text-primary uppercase mb-4">
             // Key Achievements

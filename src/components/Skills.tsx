@@ -159,7 +159,7 @@ function SkillBar({ skill, delay }: { skill: Skill; delay: number }) {
           initial={{ opacity: 0, y: 6, scale: 0.95 }}
           animate={{ opacity: hovered ? 1 : 0, y: hovered ? 0 : 6, scale: hovered ? 1 : 0.95 }}
           transition={{ duration: 0.2 }}
-          className="absolute bottom-full left-0 mb-2 z-20 w-72 bg-card border border-border rounded-xl p-3 text-xs text-muted-foreground leading-relaxed pointer-events-none shadow-xl"
+          className="absolute bottom-full left-0 mb-2 z-20 w-64 max-w-[90vw] bg-card border border-border rounded-xl p-3 text-xs text-muted-foreground leading-relaxed pointer-events-none shadow-xl"
         >
           {skill.tooltip}
         </motion.div>
@@ -176,7 +176,7 @@ export function Skills() {
   const activeSkills = tabs.find((t) => t.id === activeTab)?.skills ?? [];
 
   return (
-    <section id="skills" className="py-32 px-6 relative overflow-hidden">
+    <section id="skills" className="py-16 md:py-32 px-6 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -bottom-32 -left-32 w-96 h-96 rounded-full bg-accent/5 blur-[100px]" />
         <div className="absolute top-20 right-10 w-64 h-64 rounded-full bg-primary/4 blur-[80px]" />
@@ -215,7 +215,7 @@ export function Skills() {
           initial={{ opacity: 0, y: 24 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-10"
+          className="text-4xl md:text-5xl font-bold tracking-tight text-foreground mb-6 md:mb-10"
         >
           The tools I work with.
         </motion.h2>
@@ -225,7 +225,7 @@ export function Skills() {
           initial={{ opacity: 0, y: 16 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="flex flex-wrap gap-2 mb-10"
+          className="flex flex-wrap gap-2 mb-6 md:mb-10"
         >
           {tabs.map((tab) => (
             <button
@@ -242,7 +242,7 @@ export function Skills() {
           ))}
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-x-20 gap-y-7 mb-16">
+        <div className="grid md:grid-cols-2 gap-x-10 lg:gap-x-20 gap-y-5 md:gap-y-7 mb-8 md:mb-16">
           {activeSkills.map((skill, i) => (
             <SkillBar key={skill.name} skill={skill} delay={0.04 + (i % 7) * 0.06} />
           ))}

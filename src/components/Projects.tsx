@@ -277,7 +277,7 @@ export function Projects() {
     : projects.filter((p) => p.category === activeCategory);
 
   return (
-    <section id="projects" className="py-32 px-6 relative overflow-hidden">
+    <section id="projects" className="py-16 md:py-32 px-6 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         {[...Array(8)].map((_, i) => (
