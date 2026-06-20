@@ -145,7 +145,7 @@ export function Portfolio() {
         </AnimatePresence>
       </nav>
 
-      <main className="pb-28">
+      <main className="pb-16 md:pb-28">
         <Hero />
         <About />
         <Experience />

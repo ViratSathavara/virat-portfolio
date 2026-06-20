@@ -38,6 +38,14 @@ export function ScrollingAvatar() {
   const [xPos, setXPos] = useState(8);
   const [scale, setScale] = useState(1);
   const [facingRight, setFacingRight] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   // Click reaction state
   const [clickReaction, setClickReaction] = useState<ClickReaction | null>(null);
@@ -111,7 +119,9 @@ export function ScrollingAvatar() {
       const docHeight = document.body.scrollHeight - window.innerHeight;
       const progress = docHeight > 0 ? currentY / docHeight : 0;
 
-      const newX = 5 + progress * 80;
+      const newX = isMobile
+        ? 5 + progress * 70   // max 75% on mobile to prevent off-screen
+        : 5 + progress * 80;
       setXPos(newX);
 
       if (Math.abs(delta) > 3) {
@@ -147,7 +157,11 @@ export function ScrollingAvatar() {
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
     };
-  }, []);
+  }, [isMobile]);
+
+  // Scale down on mobile
+  const mobileScaleFactor = isMobile ? 0.72 : 1;
+  const effectiveScale = displayScale * mobileScaleFactor;
 
   return (
     <motion.div
@@ -163,7 +177,7 @@ export function ScrollingAvatar() {
 
         {/* Speech bubble — counter-flip so text is always readable */}
         <motion.div
-          className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card/95 border border-primary/40 rounded-xl px-3 py-1.5 text-[11px] font-bold text-primary whitespace-nowrap backdrop-blur-sm shadow-lg pointer-events-none"
+          className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card/95 border border-primary/40 rounded-xl px-3 py-1.5 text-[10px] md:text-[11px] font-bold text-primary whitespace-nowrap backdrop-blur-sm shadow-lg pointer-events-none"
           animate={{
             opacity: displayBubble ? 1 : 0,
             y: displayBubble ? 0 : 6,
@@ -275,7 +289,7 @@ export function ScrollingAvatar() {
             },
           }}
         >
-          <AvatarCharacter state={displayState} scale={displayScale} />
+          <AvatarCharacter state={displayState} scale={effectiveScale} />
         </motion.div>
 
         {/* Ground shadow */}

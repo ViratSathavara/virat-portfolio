@@ -79,7 +79,7 @@ export function Hero() {
         </svg>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-[1fr_auto] gap-16 items-center pt-28 pb-20">
+      <div className="max-w-6xl mx-auto px-6 w-full grid grid-cols-1 md:grid-cols-[1fr_auto] gap-10 md:gap-16 items-center pt-28 pb-20 overflow-hidden">
         <div>
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -97,7 +97,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 36 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="text-6xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-[-0.03em] mb-6"
+            className="text-5xl md:text-7xl lg:text-8xl font-extrabold leading-[1.02] tracking-[-0.03em] mb-6"
           >
             <span className="gradient-text">
               Virat
@@ -151,7 +151,7 @@ export function Hero() {
               View Work
             </motion.button>
             <motion.a
-              href="/Virat_Sathavara_CV.pdf"
+              href="/Resume - Virat Sathavara.pdf"
               download
               className="inline-flex items-center gap-2 px-7 py-3.5 border border-border text-foreground font-medium rounded-[var(--radius)] text-sm"
               whileHover={{
@@ -206,12 +206,12 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.85, x: 40 }}
           animate={{ opacity: 1, scale: 1, x: 0 }}
           transition={{ duration: 0.9, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="flex justify-center md:justify-end"
+          className="flex justify-center md:justify-end order-first md:order-last"
         >
           <div className="relative">
             {/* Rotating ambient glow blob */}
             <motion.div
-              className="absolute inset-[-50px] rounded-full"
+              className="absolute inset-[-30px] md:inset-[-50px] rounded-full"
               style={{
                 background:
                   "radial-gradient(circle, hsl(38 90% 55% / 0.18) 0%, hsl(350 75% 60% / 0.08) 50%, transparent 70%)",
@@ -222,7 +222,7 @@ export function Hero() {
 
             {/* Spinning orbit ring with dots */}
             <motion.div
-              className="absolute inset-[-20px] rounded-full border border-primary/15"
+              className="absolute inset-[-14px] md:inset-[-20px] rounded-full border border-primary/15"
               animate={{ rotate: [0, 360] }}
               transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
             >
@@ -281,7 +281,7 @@ export function Hero() {
               alt="Virat Sathavara — Frontend Engineer"
               width={288}
               height={360}
-              className="relative w-60 h-[300px] md:w-72 md:h-[360px] object-cover object-top rounded-2xl border border-primary/30"
+              className="relative w-44 h-[220px] md:w-72 md:h-[360px] object-cover object-top rounded-2xl border border-primary/30"
               style={{
                 filter:
                   "drop-shadow(0 0 28px hsl(38 90% 55% / 0.4)) drop-shadow(0 0 8px hsl(350 75% 60% / 0.2))",
@@ -290,7 +290,7 @@ export function Hero() {
             />
 
             <motion.div
-              className="absolute -bottom-3 -right-3 bg-card border border-border rounded-xl px-3 py-2 text-xs font-semibold text-primary backdrop-blur-sm"
+              className="absolute -bottom-3 -right-2 md:-right-3 bg-card border border-border rounded-xl px-2.5 py-1.5 text-[10px] md:text-xs font-semibold text-primary backdrop-blur-sm"
               animate={{ y: [0, -4, 0] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
             >
@@ -298,7 +298,7 @@ export function Hero() {
             </motion.div>
 
             <motion.div
-              className="absolute -top-3 -left-3 bg-card border border-border rounded-xl px-3 py-2 text-xs font-semibold text-foreground backdrop-blur-sm"
+              className="absolute -top-3 -left-2 md:-left-3 bg-card border border-border rounded-xl px-2.5 py-1.5 text-[10px] md:text-xs font-semibold text-foreground backdrop-blur-sm"
               animate={{ y: [0, 4, 0] }}
               transition={{
                 duration: 2.5,
