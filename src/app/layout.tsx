@@ -18,6 +18,17 @@ export const metadata: Metadata = {
     default: "Virat Sathavara | Frontend Engineer — React.js, Next.js & TypeScript Expert",
     template: "%s | Virat Sathavara",
   },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
+  },
   description:
     "Virat Sathavara — Frontend Engineer with 2+ years building enterprise SaaS platforms using React.js, Next.js, TypeScript. Expert in responsive web apps, REST APIs, CI/CD. Currently at Olbuz Pvt. Ltd. Open to frontend developer roles in React, Next.js, JavaScript. Based in Gujarat, India.",
   applicationName: "Virat Sathavara Portfolio",
@@ -338,6 +349,9 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         <link rel="canonical" href={siteUrl} />
         
         {/* JSON-LD Structured Data */}

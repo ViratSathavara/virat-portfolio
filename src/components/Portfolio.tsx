@@ -10,12 +10,14 @@ import { Contact } from "./Contact";
 import { Footer } from "./Footer";
 import { Cursor } from "./Cursor";
 import { ScrollingAvatar } from "./ScrollingAvatar";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 
 export function Portfolio() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   useEffect(() => {
     const handleScroll = () => {
@@ -51,6 +53,12 @@ export function Portfolio() {
       <Cursor />
       <ScrollingAvatar />
 
+      {/* Scroll progress bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-[2px] bg-primary origin-left z-[60]"
+        style={{ scaleX }}
+      />
+
       <nav
         className={`fixed top-0 w-full z-50 transition-all duration-500 ${
           scrolled
@@ -59,11 +67,66 @@ export function Portfolio() {
         }`}
       >
         <div className="max-w-6xl mx-auto px-6 flex items-center justify-between">
+          {/* ── Logo ── */}
           <button
             onClick={() => scrollTo("hero")}
-            className="text-lg font-extrabold tracking-[-0.04em] text-foreground hover:text-primary transition-colors"
+            aria-label="Go to top"
+            className="group flex items-center gap-2.5 focus:outline-none"
           >
-            VS<span className="text-primary">.</span>
+            {/* Icon badge */}
+            <motion.div
+              className="relative w-9 h-9 rounded-[8px] flex items-center justify-center overflow-hidden"
+              style={{ background: "#0D0B09", border: "1px solid hsl(38 90% 55% / 0.25)" }}
+              whileHover={{ scale: 1.08, borderColor: "hsl(38 90% 55% / 0.7)" }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              {/* Glow */}
+              <motion.div
+                className="absolute inset-0 rounded-[8px]"
+                style={{
+                  background:
+                    "radial-gradient(circle at 50% 50%, hsl(38 90% 55% / 0.18) 0%, transparent 70%)",
+                }}
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* VS text */}
+              <span
+                className="relative text-[13px] font-black tracking-[-1px] leading-none"
+                style={{
+                  background: "linear-gradient(135deg, #FDE68A 0%, #F59E0B 50%, #D97706 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                VS
+              </span>
+              {/* Dot */}
+              <span
+                className="absolute bottom-[4px] right-[3px] w-[5px] h-[5px] rounded-full"
+                style={{ background: "#F59E0B", boxShadow: "0 0 4px #F59E0B" }}
+              />
+            </motion.div>
+
+            {/* Wordmark — hide on very small screens */}
+            <div className="hidden sm:flex flex-col items-start leading-none">
+              <span
+                className="text-[15px] font-extrabold tracking-[-0.04em] leading-none"
+                style={{
+                  background: "linear-gradient(135deg, #ffffff 0%, #F59E0B 100%)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                }}
+              >
+                Virat Sathavara
+              </span>
+              <span className="text-[10px] text-muted/60 font-medium tracking-[0.08em] uppercase mt-0.5">
+                Software Engineer
+              </span>
+            </div>
           </button>
 
           <div className="hidden md:flex items-center gap-8">

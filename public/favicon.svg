@@ -1,3 +1,33 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <!-- Dark warm background -->
+  <rect width="180" height="180" rx="36" fill="#0D0B09"/>
+  
+  <!-- Subtle golden glow behind text -->
+  <ellipse cx="90" cy="90" rx="70" ry="70" fill="url(#glow)" opacity="0.25"/>
+  
+  <!-- V letter -->
+  <text
+    x="18"
+    y="128"
+    font-family="Arial Black, Arial, sans-serif"
+    font-weight="900"
+    font-size="100"
+    letter-spacing="-4"
+    fill="url(#goldGrad)"
+  >VS</text>
+
+  <!-- Golden dot -->
+  <circle cx="153" cy="120" r="10" fill="#F59E0B"/>
+
+  <defs>
+    <linearGradient id="goldGrad" x1="18" y1="30" x2="160" y2="130" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FDE68A"/>
+      <stop offset="50%" stop-color="#F59E0B"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F59E0B" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
 </svg>
