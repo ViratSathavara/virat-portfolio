@@ -58,6 +58,22 @@ export function ScrollingAvatar() {
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const getSafeXPos = useCallback(
+    (rawX: number) => {
+      if (!isMobile) return rawX;
+      const vw = window.innerWidth;
+      // keep bubble + avatar fully inside viewport (with margin)
+      const widgetWidth = 168;
+      const margin = 16;
+      const maxLeftPx = vw - widgetWidth - margin;
+      const maxLeftPercent = (maxLeftPx / vw) * 100;
+      return Math.min(rawX, Math.max(4, maxLeftPercent));
+    },
+    [isMobile]
+  );
+
+  const bubbleOnLeft = isMobile && xPos > 32;
+
   // Derived display values — click reaction overrides scroll state
   const displayState = clickReaction ? clickReaction.state : state;
   const displayScale = clickReaction ? clickReaction.scale : scale;
@@ -120,7 +136,7 @@ export function ScrollingAvatar() {
       const progress = docHeight > 0 ? currentY / docHeight : 0;
 
       const newX = isMobile
-        ? 5 + progress * 70   // max 75% on mobile to prevent off-screen
+        ? getSafeXPos(5 + progress * 62)
         : 5 + progress * 80;
       setXPos(newX);
 
@@ -157,7 +173,7 @@ export function ScrollingAvatar() {
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
     };
-  }, [isMobile]);
+  }, [isMobile, getSafeXPos]);
 
   // Scale down on mobile
   const mobileScaleFactor = isMobile ? 0.72 : 1;
@@ -166,18 +182,26 @@ export function ScrollingAvatar() {
   return (
     <motion.div
       className="fixed bottom-4 z-40 select-none"
+      style={{
+        left: `${xPos}%`,
+        paddingRight: "env(safe-area-inset-right, 0px)",
+        maxWidth: isMobile ? "calc(100vw - 1rem)" : undefined,
+      }}
       animate={{ left: `${xPos}%`, scaleX: facingRight ? 1 : -1 }}
       transition={{
         left: { type: "spring", stiffness: 55, damping: 18 },
         scaleX: { duration: 0.2 },
       }}
-      style={{ left: `${xPos}%` }}
     >
       <div className="relative flex flex-col items-center">
 
-        {/* Speech bubble — counter-flip so text is always readable */}
+        {/* Speech bubble — flip left on mobile when near right edge */}
         <motion.div
-          className="absolute -top-10 left-1/2 -translate-x-1/2 bg-card/95 border border-primary/40 rounded-xl px-3 py-1.5 text-[10px] md:text-[11px] font-bold text-primary whitespace-nowrap backdrop-blur-sm shadow-lg pointer-events-none"
+          className={`absolute -top-11 bg-card/95 border border-primary/40 rounded-xl px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold text-primary backdrop-blur-sm shadow-lg pointer-events-none ${
+            bubbleOnLeft
+              ? "right-0 max-w-[148px] text-right leading-snug"
+              : "left-1/2 -translate-x-1/2 whitespace-nowrap"
+          }`}
           animate={{
             opacity: displayBubble ? 1 : 0,
             y: displayBubble ? 0 : 6,
@@ -187,7 +211,11 @@ export function ScrollingAvatar() {
           transition={{ duration: 0.25 }}
         >
           {displayBubble}
-          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-1.5 bg-card/95 border-b border-r border-primary/40 rotate-45 -mb-px" />
+          <div
+            className={`absolute -bottom-1.5 w-3 h-1.5 bg-card/95 border-b border-r border-primary/40 rotate-45 -mb-px ${
+              bubbleOnLeft ? "right-5" : "left-1/2 -translate-x-1/2"
+            }`}
+          />
         </motion.div>
 
         {/* Scroll emojis (looping) */}
@@ -195,7 +223,12 @@ export function ScrollingAvatar() {
           <motion.span
             key={`scroll-${displayState}-${i}`}
             className="absolute text-base pointer-events-none"
-            style={{ bottom: "100%", left: `${-10 + i * 18}px` }}
+            style={{
+              bottom: "100%",
+              ...(bubbleOnLeft
+                ? { right: `${8 + i * 16}px` }
+                : { left: `${-10 + i * 18}px` }),
+            }}
             animate={{
               y: [0, -28, 0],
               opacity: [0, 1, 0],

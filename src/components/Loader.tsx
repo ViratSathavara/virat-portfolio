@@ -24,11 +24,13 @@ const CODE = [
 
 const ORBIT1 = [0, 90, 180, 270];
 const ORBIT2 = [45, 135, 225, 315];
+const PROGRESS_TICKS = [0, 25, 50, 75, 100] as const;
 
 const EASE = {
   smooth: [0.22, 1, 0.36, 1] as const,
   out: [0.16, 1, 0.3, 1] as const,
   inOut: [0.65, 0, 0.35, 1] as const,
+  snap: [0.34, 1.2, 0.64, 1] as const,
 };
 
 type Phase = "scanline" | "hold" | "zoomout" | "content" | "exit";
@@ -59,11 +61,48 @@ function useFitScale(active: boolean) {
 export function Loader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>("scanline");
   const [progress, setProgress] = useState(0);
+  const [displayProgress, setDisplayProgress] = useState(0);
+  const [activeTick, setActiveTick] = useState<number | null>(null);
   const [glitch, setGlitch] = useState(false);
   const onDoneRef = useRef(onDone);
+  const displayRef = useRef(0);
+  const prevProgressRef = useRef(0);
   const { ref: contentRef, scale: contentScale } = useFitScale(phase === "content");
 
   onDoneRef.current = onDone;
+
+  /* smooth count-up when progress target changes */
+  useEffect(() => {
+    const start = displayRef.current;
+    const end = progress;
+    if (start === end) return;
+    prevProgressRef.current = start;
+
+    let frame = 0;
+    const startTime = performance.now();
+    const duration = 650;
+
+    const step = (now: number) => {
+      const t = Math.min(1, (now - startTime) / duration);
+      const eased = 1 - (1 - t) ** 3;
+      const value = Math.round(start + (end - start) * eased);
+      displayRef.current = value;
+      setDisplayProgress(value);
+
+      for (const tick of PROGRESS_TICKS) {
+        if (prevProgressRef.current < tick && value >= tick) {
+          setActiveTick(tick);
+          break;
+        }
+      }
+      prevProgressRef.current = value;
+
+      if (t < 1) frame = requestAnimationFrame(step);
+    };
+
+    frame = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(frame);
+  }, [progress]);
 
   useEffect(() => {
     if (phase !== "content") return;
@@ -79,12 +118,15 @@ export function Loader({ onDone }: { onDone: () => void }) {
       { time: 1400, action: () => setPhase("hold") },
       { time: 2300, action: () => setPhase("zoomout") },
       /* zoom runs 1.8s — content mounts only after it finishes */
-      { time: 4200, action: () => setPhase("content") },
-      { time: 4800, action: () => setProgress(25) },
-      { time: 5600, action: () => setProgress(50) },
-      { time: 6400, action: () => setProgress(75) },
-      { time: 7200, action: () => setProgress(90) },
-      { time: 7800, action: () => setProgress(100) },
+      { time: 4200, action: () => {
+          setPhase("content");
+          setActiveTick(0);
+        }},
+      { time: 4700, action: () => setProgress(25) },
+      { time: 5500, action: () => setProgress(50) },
+      { time: 6300, action: () => setProgress(75) },
+      { time: 7100, action: () => setProgress(90) },
+      { time: 7700, action: () => setProgress(100) },
       { time: 8500, action: () => setPhase("exit") },
       { time: 9500, action: () => onDoneRef.current() },
     ];
@@ -373,33 +415,108 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   <div className="w-full">
                     <div className="flex justify-between items-center mb-1.5 sm:mb-2">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] sm:text-[10px] text-muted tracking-wider uppercase">Launching</span>
+                        {[0, 1, 2].map((i) => (
+                          <motion.span
+                            key={i}
+                            className="w-1 h-1 rounded-full bg-primary"
+                            animate={{ scale: [1, 1.6, 1], opacity: [0.35, 1, 0.35] }}
+                            transition={{ duration: 0.75, repeat: Infinity, delay: i * 0.18 }}
+                          />
+                        ))}
+                        <span className="text-[9px] sm:text-[10px] text-muted ml-0.5 tracking-wider uppercase">
+                          Launching
+                        </span>
                       </div>
-                      <span className="text-xs sm:text-sm font-bold tabular-nums" style={{ color: "hsl(38 90% 55%)" }}>
-                        {progress}%
-                      </span>
+                      <motion.span
+                        key={displayProgress}
+                        className="text-xs sm:text-sm font-bold tabular-nums"
+                        style={{ color: "hsl(38 90% 55%)" }}
+                        initial={{ opacity: 0.6, y: 2, scale: 0.92 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.25, ease: EASE.out }}
+                      >
+                        {displayProgress}%
+                      </motion.span>
                     </div>
-                    <div className="relative h-1 sm:h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+
+                    <div className="relative h-1.5 sm:h-2 w-full bg-secondary rounded-full overflow-visible">
+                      {/* tick dots on bar */}
+                      {PROGRESS_TICKS.map((tick) => {
+                        const reached = displayProgress >= tick;
+                        return (
+                          <motion.span
+                            key={`dot-${tick}`}
+                            className="absolute top-1/2 z-10 rounded-full bg-background border"
+                            style={{
+                              left: `${tick}%`,
+                              width: 6,
+                              height: 6,
+                              x: "-50%",
+                              y: "-50%",
+                            }}
+                            animate={{
+                              scale: reached ? (activeTick === tick ? [1, 1.5, 1] : 1) : 0.6,
+                              borderColor: reached ? "hsl(38 90% 55%)" : "hsl(30 10% 35%)",
+                              backgroundColor: reached ? "hsl(38 90% 55%)" : "hsl(24 8% 8%)",
+                              boxShadow: reached
+                                ? "0 0 8px hsl(38 90% 55% / 0.6)"
+                                : "0 0 0 transparent",
+                            }}
+                            transition={{
+                              scale: activeTick === tick
+                                ? { duration: 0.45, ease: EASE.out }
+                                : { duration: 0.3 },
+                              borderColor: { duration: 0.3 },
+                              backgroundColor: { duration: 0.3 },
+                              boxShadow: { duration: 0.3 },
+                            }}
+                          />
+                        );
+                      })}
+
                       <motion.div
-                        className="absolute inset-y-0 left-0 rounded-full"
+                        className="absolute inset-y-0 left-0 rounded-full overflow-hidden"
                         style={{
                           background:
                             "linear-gradient(90deg,hsl(38 90% 45%),hsl(38 90% 65%),hsl(350 75% 60%))",
                         }}
-                        animate={{ width: `${progress}%` }}
-                        transition={{ duration: 0.8, ease: EASE.smooth }}
-                      />
+                        animate={{ width: `${displayProgress}%` }}
+                        transition={{ duration: 0.65, ease: EASE.smooth }}
+                      >
+                        <motion.div
+                          className="absolute inset-0"
+                          style={{
+                            background:
+                              "linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.35) 50%,transparent 100%)",
+                          }}
+                          animate={{ x: ["-100%", "200%"] }}
+                          transition={{ duration: 1.1, repeat: Infinity, ease: "linear" }}
+                        />
+                      </motion.div>
                     </div>
-                    <div className="flex justify-between mt-1">
-                      {[0, 25, 50, 75, 100].map((tick) => (
-                        <span
-                          key={tick}
-                          className="text-[8px] sm:text-[9px] tabular-nums"
-                          style={{ color: progress >= tick ? "hsl(38 90% 55%)" : "hsl(30 10% 30%)" }}
-                        >
-                          {tick}
-                        </span>
-                      ))}
+
+                    <div className="flex justify-between mt-1.5 px-0.5">
+                      {PROGRESS_TICKS.map((tick) => {
+                        const reached = displayProgress >= tick;
+                        return (
+                          <motion.span
+                            key={`label-${tick}`}
+                            className="text-[8px] sm:text-[9px] tabular-nums font-medium"
+                            initial={{ opacity: 0.3, scale: 0.85 }}
+                            animate={{
+                              opacity: reached ? 1 : 0.35,
+                              scale: reached && activeTick === tick ? [0.85, 1.15, 1] : reached ? 1 : 0.85,
+                              color: reached ? "hsl(38 90% 55%)" : "hsl(30 10% 30%)",
+                            }}
+                            transition={{
+                              duration: activeTick === tick ? 0.4 : 0.25,
+                              ease: EASE.snap,
+                            }}
+                          >
+                            {tick}
+                          </motion.span>
+                        );
+                      })}
                     </div>
                   </div>
 
