@@ -39,7 +39,7 @@ const experiences: Experience[] = [
     type: "Full-time",
     duration: "March 2026 – Present",
     current: true,
-    location: "Remote",
+    location: "On-site - Jagatpur, Ahmedabad",
     projects: [
       {
         name: "PMS Management System (Enterprise SaaS Platform)",
@@ -75,7 +75,7 @@ const experiences: Experience[] = [
     type: "Full-time",
     duration: "July 2025 – January 2026",
     current: false,
-    location: "Remote",
+    location: "On-site - Jagatpur, Ahmedabad",
     projects: [
       {
         name: "SHIFTit Health — Web Admin & Company Portal",
@@ -97,7 +97,7 @@ const experiences: Experience[] = [
     type: "Full-time",
     duration: "June 2024 – May 2025",
     current: false,
-    location: "On-site",
+    location: "On-site - Pune",
     projects: [
       {
         name: "Quick Hub — Marketing Automation Platform",
@@ -120,7 +120,7 @@ const experiences: Experience[] = [
     type: "Internship",
     duration: "January 2024 – April 2024",
     current: false,
-    location: "Pune",
+    location: "On-site - Pune",
     projects: [
       {
         name: "Connectify — Social Media App",
@@ -142,7 +142,7 @@ const experiences: Experience[] = [
     type: "Internship",
     duration: "January 2023 – February 2023",
     current: false,
-    location: "Visnagar",
+    location: "On-site - Visnagar",
     projects: [
       {
         name: "Docket — Word Counter App",
