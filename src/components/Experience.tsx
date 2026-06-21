@@ -71,7 +71,7 @@ const experiences: Experience[] = [
   {
     id: 2,
     company: "Coddit64",
-    role: "Software Developer",
+    role: "Assistant System Engineer",
     type: "Full-time",
     duration: "July 2025 – January 2026",
     current: false,
