@@ -27,7 +27,15 @@ const ORBIT1 = [0, 90, 180, 270];
 const ORBIT2 = [45, 135, 225, 315];
 const NAME = "Virat Sathavara".split("");
 
-type Phase = "scanline" | "zoomout" | "content" | "exit";
+/* ── easing curves ─────────────────────────────────────────────── */
+const EASE = {
+  smooth: [0.22, 1, 0.36, 1] as const,
+  out: [0.16, 1, 0.3, 1] as const,
+  inOut: [0.65, 0, 0.35, 1] as const,
+  snap: [0.34, 1.2, 0.64, 1] as const,
+};
+
+type Phase = "scanline" | "hold" | "zoomout" | "content" | "exit";
 
 export function Loader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>("scanline");
@@ -47,19 +55,21 @@ export function Loader({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     const timeline = [
-      { time: 1200, action: () => setPhase("zoomout") },
-      { time: 2000, action: () => setPhase("content") },
-      { time: 2300, action: () => setProgress(25) },
-      { time: 2800, action: () => setProgress(50) },
-      { time: 3500, action: () => setProgress(75) },
-      { time: 4200, action: () => setProgress(100) },
-      {
-        time: 5000,
-        action: () => {
-          setPhase("exit");
-          setTimeout(() => onDoneRef.current(), 800);
-        },
-      },
+      /* scan line travels ~1.4s, then holds at center */
+      { time: 1400, action: () => setPhase("hold") },
+      /* brief pause — line pulses, then zoom begins */
+      { time: 2200, action: () => setPhase("zoomout") },
+      /* zoom finishes, content fades in */
+      { time: 3900, action: () => setPhase("content") },
+      /* progress creeps smoothly */
+      { time: 4400, action: () => setProgress(18) },
+      { time: 5200, action: () => setProgress(42) },
+      { time: 6000, action: () => setProgress(68) },
+      { time: 6800, action: () => setProgress(88) },
+      { time: 7400, action: () => setProgress(100) },
+      /* hold at 100% briefly */
+      { time: 8000, action: () => setPhase("exit") },
+      { time: 9200, action: () => onDoneRef.current() },
     ];
 
     const timers = timeline.map(({ time, action }) => setTimeout(action, time));
@@ -77,20 +87,29 @@ export function Loader({ onDone }: { onDone: () => void }) {
           initial={{ opacity: 1 }}
           exit={{
             opacity: 0,
-            filter: "blur(12px)",
-            scale: 1.06,
-            transition: { duration: 0.75, ease: [0.4, 0, 0.2, 1] },
+            filter: "blur(16px)",
+            scale: 1.04,
+            transition: { duration: 1.1, ease: EASE.inOut },
           }}
         >
 
           {/* ── ZOOMABLE SCENE (scan line + starfield) ──────── */}
           <motion.div
-            className="absolute inset-0"
+            className="absolute inset-0 will-change-transform"
             style={{ transformOrigin: "50% 50%" }}
-            animate={{ scale: phase === "scanline" ? 2.8 : 1 }}
+            animate={{
+              scale: phase === "scanline" || phase === "hold" ? 2.8 : 1,
+              filter:
+                phase === "zoomout"
+                  ? ["blur(4px)", "blur(0px)"]
+                  : "blur(0px)",
+            }}
             transition={{
-              duration: phase === "zoomout" ? 0.8 : 0,
-              ease: [0.16, 1, 0.3, 1],
+              scale: {
+                duration: phase === "zoomout" ? 1.65 : 0,
+                ease: EASE.smooth,
+              },
+              filter: { duration: 1.65, ease: EASE.inOut },
             }}
           >
             {/* ── GRID ───────────────────────────────────────── */}
@@ -103,22 +122,58 @@ export function Loader({ onDone }: { onDone: () => void }) {
               <rect width="100%" height="100%" fill="url(#g)" />
             </svg>
 
-            {/* ── SCAN LINE (top → center, then holds) ─────── */}
+            {/* ── SCAN LINE (top → center → hold → fade) ───── */}
             <motion.div
               className="absolute left-0 right-0 pointer-events-none z-10"
               style={{
                 height: 2,
-                background: "linear-gradient(90deg, transparent 5%, hsl(38 90% 55% / 0.85) 50%, transparent 95%)",
-                boxShadow: "0 0 12px hsl(38 90% 55% / 0.5), 0 0 40px hsl(38 90% 55% / 0.15)",
+                background: "linear-gradient(90deg, transparent 2%, hsl(38 90% 55% / 0.95) 50%, transparent 98%)",
+                transformOrigin: "center",
               }}
-              initial={{ top: "0%" }}
+              initial={{ top: "0%", opacity: 0, scaleX: 0.15 }}
               animate={{
                 top: "50%",
                 opacity: phase === "content" ? 0 : 1,
+                scaleX: 1,
+                scaleY: phase === "hold" ? [1, 2.2, 1] : 1,
+                boxShadow:
+                  phase === "hold"
+                    ? [
+                        "0 0 14px hsl(38 90% 55% / 0.45), 0 0 36px hsl(38 90% 55% / 0.12)",
+                        "0 0 28px hsl(38 90% 55% / 0.85), 0 0 80px hsl(38 90% 55% / 0.35)",
+                        "0 0 14px hsl(38 90% 55% / 0.45), 0 0 36px hsl(38 90% 55% / 0.12)",
+                      ]
+                    : "0 0 14px hsl(38 90% 55% / 0.5), 0 0 40px hsl(38 90% 55% / 0.15)",
               }}
               transition={{
-                top: { duration: 1.1, ease: [0.4, 0, 0.2, 1] },
-                opacity: { duration: 0.5 },
+                top: { duration: 1.35, ease: EASE.smooth },
+                opacity: { duration: 0.9, ease: EASE.inOut, delay: phase === "content" ? 0.15 : 0 },
+                scaleX: { duration: 0.9, ease: EASE.out },
+                scaleY: phase === "hold"
+                  ? { duration: 0.75, ease: EASE.inOut, repeat: Infinity, repeatDelay: 0.35 }
+                  : { duration: 0.4 },
+                boxShadow: phase === "hold"
+                  ? { duration: 0.75, ease: EASE.inOut, repeat: Infinity, repeatDelay: 0.35 }
+                  : { duration: 0.5 },
+              }}
+            />
+
+            {/* center impact bloom on hold */}
+            <motion.div
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-[9]"
+              style={{
+                width: 120,
+                height: 120,
+                background: "radial-gradient(circle, hsl(38 90% 55% / 0.25) 0%, transparent 70%)",
+              }}
+              initial={{ opacity: 0, scale: 0.2 }}
+              animate={{
+                opacity: phase === "hold" ? [0, 0.7, 0.35] : phase === "zoomout" ? 0.15 : 0,
+                scale: phase === "hold" ? [0.2, 1.4, 1] : phase === "zoomout" ? 2.5 : 0.2,
+              }}
+              transition={{
+                duration: phase === "hold" ? 0.8 : 1.2,
+                ease: EASE.smooth,
               }}
             />
 
@@ -158,15 +213,25 @@ export function Loader({ onDone }: { onDone: () => void }) {
             />
           </motion.div>
 
-          {/* ── FULL LOADER CONTENT (after zoom-out) ───────── */}
+          {/* ── FULL LOADER CONTENT (crossfades in during zoom tail) ── */}
           <AnimatePresence>
-            {phase === "content" && (
+            {(phase === "zoomout" || phase === "content") && (
           <motion.div
             className="relative flex flex-col items-center gap-6 px-6 max-w-md w-full z-20"
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            initial={{ opacity: 0, y: 48, scale: 0.88, filter: "blur(12px)" }}
+            animate={{
+              opacity: phase === "content" ? 1 : 0,
+              y: phase === "content" ? 0 : 24,
+              scale: phase === "content" ? 1 : 0.94,
+              filter: phase === "content" ? "blur(0px)" : "blur(10px)",
+            }}
+            exit={{ opacity: 0, y: -16, filter: "blur(8px)" }}
+            transition={{
+              duration: 1.15,
+              ease: EASE.smooth,
+              opacity: { duration: 1.1, ease: EASE.inOut },
+              filter: { duration: 1.2, ease: EASE.out },
+            }}
           >
 
           {/* ── CORNER BRACKETS ──────────────────────────────── */}
@@ -179,14 +244,23 @@ export function Loader({ onDone }: { onDone: () => void }) {
             <motion.div
               key={i}
               className={`fixed w-8 h-8 border-primary/40 ${cls}`}
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 + i * 0.07, duration: 0.4 }}
+              initial={{ opacity: 0, scale: 0.4 }}
+              animate={{ opacity: phase === "content" ? 1 : 0, scale: phase === "content" ? 1 : 0.6 }}
+              transition={{ delay: 0.15 + i * 0.1, duration: 0.65, ease: EASE.snap }}
             />
           ))}
 
             {/* ── LOGO SYSTEM ──────────────────────────────── */}
-            <div className="relative flex items-center justify-center w-32 h-32">
+            <motion.div
+              className="relative flex items-center justify-center w-32 h-32"
+              initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
+              animate={{
+                opacity: phase === "content" ? 1 : 0,
+                scale: phase === "content" ? 1 : 0.75,
+                rotate: phase === "content" ? 0 : -8,
+              }}
+              transition={{ duration: 0.9, delay: 0.1, ease: EASE.snap }}
+            >
 
               {/* outermost ring */}
               <motion.div
@@ -281,7 +355,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   style={{ background: "#F59E0B", boxShadow: "0 0 8px #F59E0B" }}
                 />
               </motion.div>
-            </div>
+            </motion.div>
 
             {/* ── NAME WITH LETTER ANIMATION ───────────────── */}
             <div className="flex flex-col items-center gap-1.5">
@@ -300,12 +374,12 @@ export function Loader({ onDone }: { onDone: () => void }) {
                       display: ch === " " ? "inline-block" : undefined,
                       width: ch === " " ? "0.4em" : undefined,
                     }}
-                    initial={{ opacity: 0, y: 30, rotateX: -90 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                    initial={{ opacity: 0, y: 36, rotateX: -90 }}
+                    animate={phase === "content" ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 36, rotateX: -90 }}
                     transition={{
-                      delay: 0.3 + i * 0.04,
-                      duration: 0.45,
-                      ease: [0.16, 1, 0.3, 1],
+                      delay: 0.25 + i * 0.055,
+                      duration: 0.55,
+                      ease: EASE.smooth,
                     }}
                   >
                     {ch}
@@ -314,9 +388,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
               </div>
               <motion.div
                 className="flex items-center gap-2"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9, duration: 0.5 }}
+                initial={{ opacity: 0, y: 12 }}
+                animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+                transition={{ delay: 0.85, duration: 0.65, ease: EASE.out }}
               >
                 <motion.div
                   className="w-1.5 h-1.5 rounded-full bg-green-400"
@@ -338,9 +412,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
             <motion.div
               className="w-full rounded-xl overflow-hidden border border-border/50"
               style={{ background: "hsl(24 8% 6%)" }}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
+              animate={phase === "content" ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 24, scale: 0.97 }}
+              transition={{ delay: 0.35, duration: 0.75, ease: EASE.smooth }}
             >
               {/* title bar */}
               <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/40"
@@ -357,9 +431,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   <motion.div
                     key={i}
                     className="flex items-center gap-2.5"
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: item.delay, duration: 0.4 }}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={phase === "content" ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
+                    transition={{ delay: 0.5 + item.delay, duration: 0.55, ease: EASE.out }}
                   >
                     <span className="text-[10px] text-muted/30 w-4 text-right shrink-0">
                       {i + 1}
@@ -394,9 +468,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
             {/* ── PROGRESS ─────────────────────────────────── */}
             <motion.div
               className="w-full"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+              transition={{ delay: 0.45, duration: 0.7, ease: EASE.out }}
             >
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-1.5">
@@ -413,8 +487,12 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   </span>
                 </div>
                 <motion.span
+                  key={progress}
                   className="text-sm font-bold tabular-nums"
                   style={{ color: "hsl(38 90% 55%)" }}
+                  initial={{ opacity: 0.5, y: 2 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 18 }}
                 >
                   {progress}%
                 </motion.span>
@@ -429,7 +507,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
                       "linear-gradient(90deg,hsl(38 90% 45%),hsl(38 90% 65%),hsl(350 75% 60%))",
                   }}
                   animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  transition={{ type: "spring", stiffness: 35, damping: 22, mass: 1.1 }}
                 >
                   {/* shimmer */}
                   <motion.div
@@ -470,18 +548,18 @@ export function Loader({ onDone }: { onDone: () => void }) {
             {/* ── TECH STACK BADGES ────────────────────────── */}
             <motion.div
               className="flex flex-wrap justify-center gap-2"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8, duration: 0.5 }}
+              initial={{ opacity: 0, y: 14 }}
+              animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+              transition={{ delay: 0.7, duration: 0.75, ease: EASE.smooth }}
             >
               {["React.js", "Next.js", "TypeScript", "Tailwind"].map((tech, i) => (
                 <motion.span
                   key={tech}
                   className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-primary/25 text-primary/80"
                   style={{ background: "hsl(38 90% 55% / 0.06)" }}
-                  initial={{ opacity: 0, scale: 0.7 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 1.9 + i * 0.08, type: "spring", stiffness: 260 }}
+                  initial={{ opacity: 0, scale: 0.6, y: 8 }}
+                  animate={phase === "content" ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.6, y: 8 }}
+                  transition={{ delay: 0.85 + i * 0.1, duration: 0.55, ease: EASE.snap }}
                   whileHover={{ scale: 1.1, borderColor: "hsl(38 90% 55% / 0.6)" }}
                 >
                   {tech}
@@ -493,12 +571,12 @@ export function Loader({ onDone }: { onDone: () => void }) {
           </AnimatePresence>
 
           {/* ── URL BAR ──────────────────────────────────────── */}
-          {phase === "content" && (
+          {(phase === "zoomout" || phase === "content") && (
           <motion.div
             className="absolute bottom-6 flex items-center gap-2 z-20"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4, duration: 0.5 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: phase === "content" ? 1 : 0, y: phase === "content" ? 0 : 10 }}
+            transition={{ delay: 0.6, duration: 0.8, ease: EASE.out }}
           >
             <motion.span
               className="w-1.5 h-1.5 rounded-full bg-green-400"
