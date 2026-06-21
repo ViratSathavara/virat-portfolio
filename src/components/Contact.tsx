@@ -66,7 +66,7 @@ export function Contact() {
   };
 
   return (
-    <div className="py-16 md:py-32 px-6" ref={ref}>
+    <div id="contact" className="py-16 md:py-32 px-6" ref={ref}>
       <div className="max-w-6xl mx-auto">
 
         {/* Header */}
