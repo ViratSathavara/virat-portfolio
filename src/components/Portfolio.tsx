@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Hero } from "./Hero";
 import { About } from "./About";
 import { Experience } from "./Experience";
@@ -10,9 +10,11 @@ import { Contact } from "./Contact";
 import { Footer } from "./Footer";
 import { Cursor } from "./Cursor";
 import { ScrollingAvatar } from "./ScrollingAvatar";
+import { Loader } from "./Loader";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 
 export function Portfolio() {
+  const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -48,10 +50,22 @@ export function Portfolio() {
     { label: "Contact", id: "contact" },
   ];
 
+  const handleLoaderDone = useCallback(() => setLoading(false), []);
+
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/25 selection:text-foreground">
       <Cursor />
-      <ScrollingAvatar />
+
+      {/* ── Intro loader (once per visit) ── */}
+      {loading && <Loader onDone={handleLoaderDone} />}
+
+      {/* ── Main content — hidden while loading to prevent layout shift ── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: loading ? 0 : 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <ScrollingAvatar />
 
       {/* Scroll progress bar */}
       <motion.div
@@ -218,6 +232,7 @@ export function Portfolio() {
       </main>
 
       <Footer />
+      </motion.div>
     </div>
   );
 }

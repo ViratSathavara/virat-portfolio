@@ -45,6 +45,7 @@ type Project = {
   id: number;
   title: string;
   description: string;
+  highlights?: string[];
   tags: string[];
   featured: boolean;
   techType: string;          // sub-filter: fullstack | frontend | backend
@@ -72,7 +73,7 @@ const professionalProjects: Project[] = [
     projectType: "professional",
     activelyWorking: true,
     company: "Olbuz Pvt. Ltd.",
-    liveLink: null,
+    liveLink: "https://pms.adtorise.com/",
     sourceCode: null,
     Icon: BarChart3,
     gradient: "from-amber-500/10 to-orange-500/5",
@@ -90,7 +91,7 @@ const professionalProjects: Project[] = [
     projectType: "professional",
     activelyWorking: true,
     company: "Olbuz Pvt. Ltd.",
-    liveLink: "https://theindia.travel",
+    liveLink: "https://www.theindia.co.in/",
     sourceCode: null,
     Icon: Plane,
     gradient: "from-sky-500/10 to-blue-500/5",
@@ -158,8 +159,15 @@ const personalProjects: Project[] = [
     id: 202,
     title: "Portfolio Website",
     description:
-      "Personal portfolio built with Next.js 14, Tailwind CSS, Framer Motion. Fully SEO-optimized with JSON-LD structured data, SSR, Open Graph tags, accessibility features, animated avatar, and smooth scroll interactions.",
-    tags: ["Next.js", "TypeScript", "Tailwind CSS"],
+      "A production-grade personal portfolio built from scratch to showcase my work, skills, and experience. Designed as a single-page application with cinematic intro animations, SEO-first architecture, and a fully responsive dark theme.",
+    highlights: [
+      "Built with Next.js 14 App Router, TypeScript, Tailwind CSS, and Framer Motion for smooth page transitions and scroll animations.",
+      "Custom intro loader with scan-line → zoom-out sequence, animated logo, code terminal, and progress bar.",
+      "SEO optimized with JSON-LD structured data, Open Graph tags, canonical URLs, and semantic HTML for better discoverability.",
+      "Interactive sections: animated skills with doc links, filterable project gallery, contact form with email API, and custom cursor.",
+      "Deployed on production with performance-focused SSR, accessible UI patterns, and mobile-first responsive design.",
+    ],
+    tags: ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
     featured: true,
     techType: "frontend",
     projectType: "personal",
@@ -333,6 +341,17 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       <p className="text-sm text-muted leading-relaxed mb-4 font-light flex-1">
         {project.description}
       </p>
+
+      {project.highlights && project.highlights.length > 0 && (
+        <ul className="text-xs text-muted/90 leading-relaxed mb-4 space-y-1.5 flex-1">
+          {project.highlights.map((point) => (
+            <li key={point} className="flex gap-2">
+              <span className="text-primary shrink-0 mt-0.5">▸</span>
+              <span>{point}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* Tech tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">

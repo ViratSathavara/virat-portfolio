@@ -27,6 +27,7 @@ import {
   SiCpanel,
 } from "react-icons/si";
 import { FaHtml5, FaCss3Alt, FaDatabase, FaServer, FaTools } from "react-icons/fa";
+import { ExternalLink } from "lucide-react";
 
 type Skill = {
   name: string;
@@ -35,44 +36,45 @@ type Skill = {
   Icon: React.ElementType;
   level: string;
   tooltip?: string;
+  docUrl: string;
 };
 
 const frontendSkills: Skill[] = [
-  { name: "React.js", percentage: 90, Icon: SiReact, color: "#61DAFB", level: "Advanced", tooltip: "1.5+ years — QuickHub, SHIFTit, PMS. Hooks, Context, performance optimization, API integration." },
-  { name: "Next.js", percentage: 85, Icon: SiNextdotjs, color: "#ffffff", level: "Advanced", tooltip: "2+ years — SHIFTit Healthcare Portal, PMS Platform & TheIndia Travel. SSR, SSG, App Router, API routes." },
-  { name: "TypeScript", percentage: 75, Icon: SiTypescript, color: "#3178C6", level: "Intermediate", tooltip: "Used in SHIFTit and PMS platform. Interfaces, generics, type-safe API responses." },
-  { name: "JavaScript (ES6+)", percentage: 85, Icon: SiJavascript, color: "#F7DF1E", level: "Advanced", tooltip: "2+ years of modern JS — async/await, closures, event delegation, performance optimization." },
-  { name: "Redux", percentage: 65, Icon: SiRedux, color: "#764ABC", level: "Intermediate", tooltip: "State management using Redux and Redux Toolkit in enterprise SaaS applications." },
-  { name: "GraphQL", percentage: 70, Icon: SiGraphql, color: "#E10098", level: "Intermediate", tooltip: "Used in QuickHub (Cloudpeak). Queries, mutations, fragments, Apollo Client." },
-  { name: "REST APIs / Axios", percentage: 85, Icon: SiAxios, color: "#5A29E4", level: "Advanced", tooltip: "Extensive experience consuming and designing REST APIs with Axios across multiple production projects." },
-  { name: "JWT / Auth", percentage: 75, Icon: FaServer, color: "#FF6C37", level: "Intermediate", tooltip: "Implemented JWT authentication, role-based access control (RBAC), and secure session management." },
+  { name: "React.js", percentage: 90, Icon: SiReact, color: "#61DAFB", level: "Advanced", docUrl: "https://react.dev", tooltip: "1.5+ years — QuickHub, SHIFTit, PMS. Hooks, Context, performance optimization, API integration." },
+  { name: "Next.js", percentage: 85, Icon: SiNextdotjs, color: "#ffffff", level: "Advanced", docUrl: "https://nextjs.org/docs", tooltip: "2+ years — SHIFTit Healthcare Portal, PMS Platform & TheIndia Travel. SSR, SSG, App Router, API routes." },
+  { name: "TypeScript", percentage: 75, Icon: SiTypescript, color: "#3178C6", level: "Intermediate", docUrl: "https://www.typescriptlang.org/docs/", tooltip: "Used in SHIFTit and PMS platform. Interfaces, generics, type-safe API responses." },
+  { name: "JavaScript (ES6+)", percentage: 85, Icon: SiJavascript, color: "#F7DF1E", level: "Advanced", docUrl: "https://developer.mozilla.org/en-US/docs/Web/JavaScript", tooltip: "2+ years of modern JS — async/await, closures, event delegation, performance optimization." },
+  { name: "Redux", percentage: 65, Icon: SiRedux, color: "#764ABC", level: "Intermediate", docUrl: "https://redux.js.org/", tooltip: "State management using Redux and Redux Toolkit in enterprise SaaS applications." },
+  { name: "GraphQL", percentage: 70, Icon: SiGraphql, color: "#E10098", level: "Intermediate", docUrl: "https://graphql.org/learn/", tooltip: "Used in QuickHub (Cloudpeak). Queries, mutations, fragments, Apollo Client." },
+  { name: "REST APIs / Axios", percentage: 85, Icon: SiAxios, color: "#5A29E4", level: "Advanced", docUrl: "https://axios-http.com/docs/intro", tooltip: "Extensive experience consuming and designing REST APIs with Axios across multiple production projects." },
+  { name: "JWT / Auth", percentage: 75, Icon: FaServer, color: "#FF6C37", level: "Intermediate", docUrl: "https://jwt.io/introduction", tooltip: "Implemented JWT authentication, role-based access control (RBAC), and secure session management." },
 ];
 
 const stylingSkills: Skill[] = [
-  { name: "Tailwind CSS", percentage: 95, Icon: SiTailwindcss, color: "#06B6D4", level: "Expert", tooltip: "Primary styling tool for 1.5+ years — used in all recent projects for rapid, responsive UI development." },
-  { name: "Material UI (MUI)", percentage: 85, Icon: SiMui, color: "#007FFF", level: "Advanced", tooltip: "Used across multiple projects for component-based design systems and dashboard layouts." },
-  { name: "Bootstrap CSS", percentage: 88, Icon: SiBootstrap, color: "#7952B3", level: "Advanced", tooltip: "3 years of Bootstrap experience for responsive grids and component-based styling." },
-  { name: "HTML5", percentage: 95, Icon: FaHtml5, color: "#E34F26", level: "Expert", tooltip: "3+ years building semantic, accessible, SEO-friendly HTML structures." },
-  { name: "CSS3", percentage: 90, Icon: FaCss3Alt, color: "#1572B6", level: "Advanced", tooltip: "Animations, flexbox, grid, custom properties, and cross-browser compatibility." },
+  { name: "Tailwind CSS", percentage: 95, Icon: SiTailwindcss, color: "#06B6D4", level: "Expert", docUrl: "https://tailwindcss.com/docs", tooltip: "Primary styling tool for 1.5+ years — used in all recent projects for rapid, responsive UI development." },
+  { name: "Material UI (MUI)", percentage: 85, Icon: SiMui, color: "#007FFF", level: "Advanced", docUrl: "https://mui.com/material-ui/getting-started/", tooltip: "Used across multiple projects for component-based design systems and dashboard layouts." },
+  { name: "Bootstrap CSS", percentage: 88, Icon: SiBootstrap, color: "#7952B3", level: "Advanced", docUrl: "https://getbootstrap.com/docs/", tooltip: "3 years of Bootstrap experience for responsive grids and component-based styling." },
+  { name: "HTML5", percentage: 95, Icon: FaHtml5, color: "#E34F26", level: "Expert", docUrl: "https://developer.mozilla.org/en-US/docs/Web/HTML", tooltip: "3+ years building semantic, accessible, SEO-friendly HTML structures." },
+  { name: "CSS3", percentage: 90, Icon: FaCss3Alt, color: "#1572B6", level: "Advanced", docUrl: "https://developer.mozilla.org/en-US/docs/Web/CSS", tooltip: "Animations, flexbox, grid, custom properties, and cross-browser compatibility." },
 ];
 
 const backendSkills: Skill[] = [
-  { name: "Node.js", percentage: 50, Icon: SiNodedotjs, color: "#339933", level: "Basic", tooltip: "Working knowledge for building REST APIs and middleware." },
-  { name: "Express.js", percentage: 50, Icon: SiExpress, color: "#ffffff", level: "Basic", tooltip: "Building RESTful APIs with CRUD operations and middleware." },
-  { name: "MongoDB", percentage: 60, Icon: SiMongodb, color: "#47A248", level: "Intermediate", tooltip: "Schema design, aggregation pipelines, Mongoose ODM." },
-  { name: "PostgreSQL", percentage: 40, Icon: SiPostgresql, color: "#336791", level: "Basic", tooltip: "Basic schema design and complex queries." },
-  { name: "SQL", percentage: 45, Icon: FaDatabase, color: "#4479A1", level: "Basic", tooltip: "Relational databases, joins, and data manipulation." },
-  { name: "Firebase", percentage: 65, Icon: SiFirebase, color: "#FFCA28", level: "Intermediate", tooltip: "Used in Connectify — Realtime Database and Authentication." },
-  { name: "NestJS", percentage: 55, Icon: SiNestjs, color: "#E0234E", level: "Basic", tooltip: "Used in QuickHub project at Cloudpeak Technologies for backend modules." },
+  { name: "Node.js", percentage: 50, Icon: SiNodedotjs, color: "#339933", level: "Basic", docUrl: "https://nodejs.org/docs/latest/api/", tooltip: "Working knowledge for building REST APIs and middleware." },
+  { name: "Express.js", percentage: 50, Icon: SiExpress, color: "#ffffff", level: "Basic", docUrl: "https://expressjs.com/", tooltip: "Building RESTful APIs with CRUD operations and middleware." },
+  { name: "MongoDB", percentage: 60, Icon: SiMongodb, color: "#47A248", level: "Intermediate", docUrl: "https://www.mongodb.com/docs/", tooltip: "Schema design, aggregation pipelines, Mongoose ODM." },
+  { name: "PostgreSQL", percentage: 40, Icon: SiPostgresql, color: "#336791", level: "Basic", docUrl: "https://www.postgresql.org/docs/", tooltip: "Basic schema design and complex queries." },
+  { name: "SQL", percentage: 45, Icon: FaDatabase, color: "#4479A1", level: "Basic", docUrl: "https://www.w3schools.com/sql/", tooltip: "Relational databases, joins, and data manipulation." },
+  { name: "Firebase", percentage: 65, Icon: SiFirebase, color: "#FFCA28", level: "Intermediate", docUrl: "https://firebase.google.com/docs", tooltip: "Used in Connectify — Realtime Database and Authentication." },
+  { name: "NestJS", percentage: 55, Icon: SiNestjs, color: "#E0234E", level: "Basic", docUrl: "https://docs.nestjs.com/", tooltip: "Used in QuickHub project at Cloudpeak Technologies for backend modules." },
 ];
 
 const deploymentSkills: Skill[] = [
-  { name: "cPanel", percentage: 70, Icon: SiCpanel, color: "#FF6C2C", level: "Intermediate", tooltip: "Managed production deployments and server configurations at Olbuz." },
-  { name: "Netlify / Render", percentage: 80, Icon: SiNetlify, color: "#00C7B7", level: "Advanced", tooltip: "Deployed personal projects including Uber Clone (Render) and portfolio (Netlify)." },
-  { name: "CI/CD Pipelines", percentage: 60, Icon: FaTools, color: "#6366F1", level: "Intermediate", tooltip: "Automated deployment workflows for scalable frontend applications." },
-  { name: "Git / GitHub", percentage: 88, Icon: SiGithub, color: "#ffffff", level: "Advanced", tooltip: "Version control, branching, PRs, and collaboration." },
-  { name: "GitLab", percentage: 75, Icon: SiGitlab, color: "#FC6D26", level: "Intermediate", tooltip: "GitLab CI/CD and repository management." },
-  { name: "Figma", percentage: 65, Icon: SiFigma, color: "#F24E1E", level: "Intermediate", tooltip: "UI design collaboration and design-to-code workflows." },
+  { name: "cPanel", percentage: 70, Icon: SiCpanel, color: "#FF6C2C", level: "Intermediate", docUrl: "https://docs.cpanel.net/", tooltip: "Managed production deployments and server configurations at Olbuz." },
+  { name: "Netlify / Render", percentage: 80, Icon: SiNetlify, color: "#00C7B7", level: "Advanced", docUrl: "https://docs.netlify.com/", tooltip: "Deployed personal projects including Uber Clone (Render) and portfolio (Netlify)." },
+  { name: "CI/CD Pipelines", percentage: 60, Icon: FaTools, color: "#6366F1", level: "Intermediate", docUrl: "https://docs.github.com/en/actions", tooltip: "Automated deployment workflows for scalable frontend applications." },
+  { name: "Git / GitHub", percentage: 88, Icon: SiGithub, color: "#ffffff", level: "Advanced", docUrl: "https://docs.github.com/", tooltip: "Version control, branching, PRs, and collaboration." },
+  { name: "GitLab", percentage: 75, Icon: SiGitlab, color: "#FC6D26", level: "Intermediate", docUrl: "https://docs.gitlab.com/", tooltip: "GitLab CI/CD and repository management." },
+  { name: "Figma", percentage: 65, Icon: SiFigma, color: "#F24E1E", level: "Intermediate", docUrl: "https://help.figma.com/", tooltip: "UI design collaboration and design-to-code workflows." },
 ];
 
 const tabs = [
@@ -102,7 +104,13 @@ function SkillBar({ skill, delay }: { skill: Skill; delay: number }) {
       onMouseLeave={() => setHovered(false)}
     >
       <div className="flex justify-between text-sm font-medium mb-2 items-center">
-        <span className="flex items-center gap-2 text-foreground">
+        <a
+          href={skill.docUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-foreground hover:text-primary transition-colors duration-200 min-w-0"
+          title={`Open ${skill.name} documentation`}
+        >
           <motion.span
             initial={{ scale: 0, rotate: -180 }}
             animate={inView ? { scale: 1, rotate: 0 } : {}}
@@ -111,8 +119,9 @@ function SkillBar({ skill, delay }: { skill: Skill; delay: number }) {
           >
             <skill.Icon style={{ color: skill.color }} />
           </motion.span>
-          <span className="text-sm">{skill.name}</span>
-        </span>
+          <span className="text-sm truncate">{skill.name}</span>
+          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 shrink-0 transition-opacity" />
+        </a>
         <div className="flex items-center gap-2">
           <span
             className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${levelColor[skill.level]}`}
@@ -219,6 +228,14 @@ export function Skills() {
         >
           The tools I work with.
         </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.5, delay: 0.15 }}
+          className="text-sm text-muted mb-6 md:mb-8 -mt-4"
+        >
+          Click any skill to open its official documentation.
+        </motion.p>
 
         {/* Tabs */}
         <motion.div
