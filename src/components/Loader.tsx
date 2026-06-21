@@ -33,7 +33,14 @@ const EASE = {
   snap: [0.34, 1.2, 0.64, 1] as const,
 };
 
-type Phase = "scanline" | "hold" | "zoomout" | "content" | "exit";
+// Phase timeline:
+// "scanline"  → line travels top → center (1.3s)
+// "hold"      → line pulses at center (~0.9s)
+// "logoreveal"→ line zooms out (scales up) then fades, VS logo fades in (~1.4s)
+// "zoomout"   → starfield zooms from 2.8x → 1x (background transition, ~1.8s)
+// "content"   → full loading UI
+// "exit"      → fade out
+type Phase = "scanline" | "hold" | "logoreveal" | "zoomout" | "content" | "exit";
 
 function useFitScale(active: boolean) {
   const ref = useRef<HTMLDivElement>(null);
@@ -64,6 +71,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
   const [displayProgress, setDisplayProgress] = useState(0);
   const [activeTick, setActiveTick] = useState<number | null>(null);
   const [glitch, setGlitch] = useState(false);
+  const [logoVisible, setLogoVisible] = useState(false);
   const onDoneRef = useRef(onDone);
   const displayRef = useRef(0);
   const prevProgressRef = useRef(0);
@@ -115,27 +123,33 @@ export function Loader({ onDone }: { onDone: () => void }) {
 
   useEffect(() => {
     const timeline = [
+      // line reaches center
       { time: 1400, action: () => setPhase("hold") },
-      { time: 2300, action: () => setPhase("zoomout") },
-      /* zoom runs 1.8s — content mounts only after it finishes */
-      { time: 4200, action: () => {
+      // hold / pulse for a moment, then trigger logo reveal
+      { time: 2300, action: () => { setPhase("logoreveal"); } },
+      // logo is visible, start starfield zoom-out behind it
+      { time: 3000, action: () => { setLogoVisible(true); } },
+      { time: 3500, action: () => setPhase("zoomout") },
+      // zoom finishes, full content mounts
+      { time: 5200, action: () => {
+          setLogoVisible(false);
           setPhase("content");
           setActiveTick(0);
         }},
-      { time: 4700, action: () => setProgress(25) },
-      { time: 5500, action: () => setProgress(50) },
-      { time: 6300, action: () => setProgress(75) },
-      { time: 7100, action: () => setProgress(90) },
-      { time: 7700, action: () => setProgress(100) },
-      { time: 8500, action: () => setPhase("exit") },
-      { time: 9500, action: () => onDoneRef.current() },
+      { time: 5700, action: () => setProgress(25) },
+      { time: 6500, action: () => setProgress(50) },
+      { time: 7300, action: () => setProgress(75) },
+      { time: 8100, action: () => setProgress(90) },
+      { time: 8700, action: () => setProgress(100) },
+      { time: 9500, action: () => setPhase("exit") },
+      { time: 10500, action: () => onDoneRef.current() },
     ];
 
     const timers = timeline.map(({ time, action }) => setTimeout(action, time));
     return () => timers.forEach(clearTimeout);
   }, []);
 
-  const showIntro = phase === "scanline" || phase === "hold" || phase === "zoomout";
+  const showIntro = phase === "scanline" || phase === "hold" || phase === "logoreveal" || phase === "zoomout";
 
   return (
     <AnimatePresence>
@@ -160,7 +174,10 @@ export function Loader({ onDone }: { onDone: () => void }) {
                 initial={{ opacity: 1, scale: 2.8 }}
                 animate={{
                   opacity: phase === "zoomout" ? 0 : 1,
-                  scale: phase === "scanline" || phase === "hold" ? 2.8 : 1,
+                  scale:
+                    phase === "scanline" || phase === "hold" || phase === "logoreveal"
+                      ? 2.8
+                      : 1,
                 }}
                 exit={{ opacity: 0, transition: { duration: 0.4 } }}
                 transition={{
@@ -180,32 +197,55 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   <rect width="100%" height="100%" fill="url(#loader-grid)" />
                 </svg>
 
-                <motion.div
-                  className="absolute left-0 right-0 pointer-events-none z-10"
-                  style={{
-                    height: 2,
-                    background:
-                      "linear-gradient(90deg, transparent 2%, hsl(38 90% 55% / 0.95) 50%, transparent 98%)",
-                    boxShadow: "0 0 14px hsl(38 90% 55% / 0.5), 0 0 40px hsl(38 90% 55% / 0.15)",
-                    transformOrigin: "center",
-                  }}
-                  initial={{ top: "0%", opacity: 0, scaleX: 0.2 }}
-                  animate={{
-                    top: "50%",
-                    opacity: 1,
-                    scaleX: 1,
-                    scaleY: phase === "hold" ? [1, 2, 1] : 1,
-                  }}
-                  transition={{
-                    top: { duration: 1.3, ease: EASE.smooth },
-                    opacity: { duration: 0.5 },
-                    scaleX: { duration: 0.8, ease: EASE.out },
-                    scaleY:
-                      phase === "hold"
-                        ? { duration: 0.7, ease: EASE.inOut, repeat: Infinity, repeatDelay: 0.4 }
-                        : { duration: 0.3 },
-                  }}
-                />
+                {/* Scan line — only visible during scanline/hold, zooms out during logoreveal */}
+                <AnimatePresence>
+                  {(phase === "scanline" || phase === "hold" || phase === "logoreveal") && (
+                    <motion.div
+                      key="scanline"
+                      className="absolute left-0 right-0 pointer-events-none z-10"
+                      style={{
+                        height: 2,
+                        background:
+                          "linear-gradient(90deg, transparent 2%, hsl(38 90% 55% / 0.95) 50%, transparent 98%)",
+                        boxShadow: "0 0 14px hsl(38 90% 55% / 0.5), 0 0 40px hsl(38 90% 55% / 0.15)",
+                        transformOrigin: "center",
+                        top: "50%",
+                      }}
+                      initial={{ top: "0%", opacity: 0, scaleX: 0.2 }}
+                      animate={
+                        phase === "logoreveal"
+                          ? {
+                              opacity: 0,
+                              scaleX: [1, 8, 20],
+                              scaleY: [1, 0.3, 0],
+                            }
+                          : {
+                              top: "50%",
+                              opacity: 1,
+                              scaleX: 1,
+                              scaleY: phase === "hold" ? [1, 2, 1] : 1,
+                            }
+                      }
+                      transition={
+                        phase === "logoreveal"
+                          ? {
+                              scaleX: { duration: 0.7, ease: EASE.smooth },
+                              scaleY: { duration: 0.7, ease: EASE.smooth },
+                              opacity: { duration: 0.5, ease: EASE.inOut, delay: 0.3 },
+                            }
+                          : {
+                              top: { duration: 1.3, ease: EASE.smooth },
+                              opacity: { duration: 0.5 },
+                              scaleX: { duration: 0.8, ease: EASE.out },
+                              scaleY:
+                                phase === "hold"
+                                  ? { duration: 0.7, ease: EASE.inOut, repeat: Infinity, repeatDelay: 0.4 }
+                                  : { duration: 0.3 },
+                            }
+                      }
+                    />
+                  )}
+                </AnimatePresence>
 
                 {PARTICLES.map((p) => (
                   <motion.div
@@ -241,6 +281,81 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   className="absolute bottom-[-15%] right-[-10%] w-[600px] h-[600px] rounded-full pointer-events-none"
                   style={{ background: "hsl(350 75% 60% / 0.06)", filter: "blur(100px)" }}
                 />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── LOGO REVEAL (line zooms out → VS logo appears) ── */}
+          <AnimatePresence>
+            {logoVisible && (
+              <motion.div
+                key="logo-reveal"
+                className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: EASE.smooth }}
+              >
+                {/* Glow ring */}
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{
+                    width: 160,
+                    height: 160,
+                    background: "radial-gradient(circle, hsl(38 90% 55% / 0.25) 0%, transparent 70%)",
+                    filter: "blur(20px)",
+                  }}
+                  initial={{ scale: 0.4, opacity: 0 }}
+                  animate={{ scale: [0.4, 1.4, 1.1], opacity: [0, 1, 0.6] }}
+                  transition={{ duration: 1.0, ease: EASE.smooth }}
+                />
+
+                {/* VS Logo box */}
+                <motion.div
+                  className="relative flex items-center justify-center rounded-3xl"
+                  style={{
+                    width: 90,
+                    height: 90,
+                    background: "#0D0B09",
+                    border: "2px solid hsl(38 90% 55% / 0.7)",
+                    boxShadow:
+                      "0 0 40px hsl(38 90% 55%/0.5), 0 0 100px hsl(38 90% 55%/0.2), inset 0 0 30px hsl(38 90% 55%/0.05)",
+                  }}
+                  initial={{ scale: 0, rotate: -15, opacity: 0 }}
+                  animate={{ scale: [0, 1.18, 0.95, 1.05, 1], rotate: [-15, 5, -3, 1, 0], opacity: 1 }}
+                  transition={{ duration: 1.1, ease: EASE.snap }}
+                >
+                  <span
+                    className="text-4xl font-black tracking-[-3px]"
+                    style={{
+                      background: "linear-gradient(135deg,#FDE68A 0%,#F59E0B 55%,#D97706 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    VS
+                  </span>
+                  <span
+                    className="absolute bottom-2 right-2 w-2.5 h-2.5 rounded-full"
+                    style={{ background: "#F59E0B", boxShadow: "0 0 10px #F59E0B" }}
+                  />
+                </motion.div>
+
+                {/* Name label */}
+                <motion.p
+                  className="absolute text-sm font-bold tracking-[0.2em] uppercase"
+                  style={{
+                    color: "hsl(38 90% 65%)",
+                    top: "calc(50% + 60px)",
+                    letterSpacing: "0.25em",
+                  }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.5, ease: EASE.smooth }}
+                >
+                  Virat Sathavara
+                </motion.p>
               </motion.div>
             )}
           </AnimatePresence>

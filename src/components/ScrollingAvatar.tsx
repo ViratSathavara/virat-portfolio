@@ -65,7 +65,7 @@ const SECTION_CONFIG: Record<SectionId, SectionConfig> = {
     state: "jumping",
     scale: 1.1,
     emojis: ["💬", "📧", "🤝"],
-    xPos: 74,
+    xPos: 84,
   },
 };
 
@@ -157,7 +157,19 @@ export function ScrollingAvatar() {
   const displayScale = clickReaction ? clickReaction.scale : scale;
   const displayBubble = clickReaction ? clickReaction.bubble : sectionConfig.bubble;
   const displayEmojis = clickReaction ? clickReaction.emojis : sectionConfig.emojis;
-  const bubbleOnLeft = isMobile && xPos > 32;
+
+  // Bubble position: on hero → right of avatar; mid scroll → centered; late/contact → left
+  const bubblePosition: "right" | "center" | "left" =
+    activeSection === "hero" && !isScrolling
+      ? "right"
+      : activeSection === "contact"
+      ? "left"
+      : activeSection === "projects"
+      ? "left"
+      : "center";
+
+  const bubbleOnLeft = bubblePosition === "left" || (isMobile && xPos > 50);
+  const bubbleOnRight = bubblePosition === "right" && !bubbleOnLeft;
 
   const handleAvatarClick = useCallback(() => {
     const reaction = CLICK_REACTIONS[clickIndexRef.current % CLICK_REACTIONS.length];
@@ -200,10 +212,17 @@ export function ScrollingAvatar() {
         setScale(0.92);
         setFacingRight(delta > 0);
 
-        const scrollX = isMobile
-          ? getSafeXPos(5 + progress * 62)
-          : 5 + progress * 80;
-        setXPos(scrollX);
+        // At the very end (contact section / progress > 0.88) push to bottom-right
+        const targetX =
+          progress > 0.88
+            ? isMobile
+              ? getSafeXPos(82)
+              : 84
+            : isMobile
+            ? getSafeXPos(5 + progress * 62)
+            : 5 + progress * 80;
+
+        setXPos(targetX);
       }
 
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
@@ -252,6 +271,8 @@ export function ScrollingAvatar() {
               className={`absolute -top-11 bg-card/95 border border-primary/40 rounded-xl px-2.5 py-1.5 text-[10px] md:text-[11px] font-bold text-primary backdrop-blur-sm shadow-lg pointer-events-none ${
                 bubbleOnLeft
                   ? "right-0 max-w-[148px] text-right leading-snug"
+                  : bubbleOnRight
+                  ? "left-full ml-2 whitespace-nowrap"
                   : "left-1/2 -translate-x-1/2 whitespace-nowrap"
               }`}
               initial={{ opacity: 0, y: 8, scale: 0.9 }}
@@ -267,7 +288,11 @@ export function ScrollingAvatar() {
               {displayBubble}
               <div
                 className={`absolute -bottom-1.5 w-3 h-1.5 bg-card/95 border-b border-r border-primary/40 rotate-45 -mb-px ${
-                  bubbleOnLeft ? "right-5" : "left-1/2 -translate-x-1/2"
+                  bubbleOnLeft
+                    ? "right-5"
+                    : bubbleOnRight
+                    ? "left-2"
+                    : "left-1/2 -translate-x-1/2"
                 }`}
               />
             </motion.div>
@@ -283,6 +308,8 @@ export function ScrollingAvatar() {
                 bottom: "100%",
                 ...(bubbleOnLeft
                   ? { right: `${8 + i * 16}px` }
+                  : bubbleOnRight
+                  ? { left: `${28 + i * 18}px` }
                   : { left: `${-10 + i * 18}px` }),
               }}
               initial={{ opacity: 0, y: 4 }}
