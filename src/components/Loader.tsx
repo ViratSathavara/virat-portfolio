@@ -37,6 +37,30 @@ const EASE = {
 
 type Phase = "scanline" | "hold" | "zoomout" | "content" | "exit";
 
+const contentVariants = {
+  hidden: { opacity: 0, y: 36, scale: 0.94 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.85,
+      ease: EASE.smooth,
+      staggerChildren: 0.07,
+      delayChildren: 0.12,
+    },
+  },
+};
+
+const contentItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: EASE.out },
+  },
+};
+
 export function Loader({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Phase>("scanline");
   const [progress, setProgress] = useState(0);
@@ -59,17 +83,15 @@ export function Loader({ onDone }: { onDone: () => void }) {
       { time: 1400, action: () => setPhase("hold") },
       /* brief pause — line pulses, then zoom begins */
       { time: 2200, action: () => setPhase("zoomout") },
-      /* zoom finishes, content fades in */
-      { time: 3900, action: () => setPhase("content") },
-      /* progress creeps smoothly */
-      { time: 4400, action: () => setProgress(18) },
-      { time: 5200, action: () => setProgress(42) },
-      { time: 6000, action: () => setProgress(68) },
-      { time: 6800, action: () => setProgress(88) },
-      { time: 7400, action: () => setProgress(100) },
-      /* hold at 100% briefly */
-      { time: 8000, action: () => setPhase("exit") },
-      { time: 9200, action: () => onDoneRef.current() },
+      /* zoom completes (~1.65s), brief beat, then reveal UI */
+      { time: 4100, action: () => setPhase("content") },
+      { time: 4600, action: () => setProgress(20) },
+      { time: 5400, action: () => setProgress(45) },
+      { time: 6200, action: () => setProgress(70) },
+      { time: 7000, action: () => setProgress(90) },
+      { time: 7600, action: () => setProgress(100) },
+      { time: 8400, action: () => setPhase("exit") },
+      { time: 9600, action: () => onDoneRef.current() },
     ];
 
     const timers = timeline.map(({ time, action }) => setTimeout(action, time));
@@ -99,17 +121,14 @@ export function Loader({ onDone }: { onDone: () => void }) {
             style={{ transformOrigin: "50% 50%" }}
             animate={{
               scale: phase === "scanline" || phase === "hold" ? 2.8 : 1,
-              filter:
-                phase === "zoomout"
-                  ? ["blur(4px)", "blur(0px)"]
-                  : "blur(0px)",
+              opacity: phase === "content" ? 0.35 : 1,
             }}
             transition={{
               scale: {
                 duration: phase === "zoomout" ? 1.65 : 0,
                 ease: EASE.smooth,
               },
-              filter: { duration: 1.65, ease: EASE.inOut },
+              opacity: { duration: 0.9, ease: EASE.inOut, delay: phase === "content" ? 0 : 0 },
             }}
           >
             {/* ── GRID ───────────────────────────────────────── */}
@@ -213,25 +232,29 @@ export function Loader({ onDone }: { onDone: () => void }) {
             />
           </motion.div>
 
-          {/* ── FULL LOADER CONTENT (crossfades in during zoom tail) ── */}
-          <AnimatePresence>
-            {(phase === "zoomout" || phase === "content") && (
+          {/* ── FULL LOADER CONTENT (after zoom completes) ───── */}
+          <AnimatePresence mode="wait">
+            {phase === "content" && (
+          <>
           <motion.div
-            className="relative flex flex-col items-center gap-6 px-6 max-w-md w-full z-20"
-            initial={{ opacity: 0, y: 48, scale: 0.88, filter: "blur(12px)" }}
-            animate={{
-              opacity: phase === "content" ? 1 : 0,
-              y: phase === "content" ? 0 : 24,
-              scale: phase === "content" ? 1 : 0.94,
-              filter: phase === "content" ? "blur(0px)" : "blur(10px)",
+            key="loader-backdrop"
+            className="absolute inset-0 z-[25] pointer-events-none"
+            style={{
+              background:
+                "radial-gradient(ellipse 70% 60% at 50% 50%, hsl(24 8% 3% / 0.92) 0%, hsl(24 8% 3% / 0.55) 55%, transparent 100%)",
             }}
-            exit={{ opacity: 0, y: -16, filter: "blur(8px)" }}
-            transition={{
-              duration: 1.15,
-              ease: EASE.smooth,
-              opacity: { duration: 1.1, ease: EASE.inOut },
-              filter: { duration: 1.2, ease: EASE.out },
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: EASE.inOut }}
+          />
+          <motion.div
+            key="loader-content"
+            className="relative flex flex-col items-center gap-6 px-6 max-w-md w-full z-30"
+            variants={contentVariants}
+            initial="hidden"
+            animate="visible"
+            exit={{ opacity: 0, y: -12, transition: { duration: 0.5, ease: EASE.inOut } }}
           >
 
           {/* ── CORNER BRACKETS ──────────────────────────────── */}
@@ -244,22 +267,16 @@ export function Loader({ onDone }: { onDone: () => void }) {
             <motion.div
               key={i}
               className={`fixed w-8 h-8 border-primary/40 ${cls}`}
-              initial={{ opacity: 0, scale: 0.4 }}
-              animate={{ opacity: phase === "content" ? 1 : 0, scale: phase === "content" ? 1 : 0.6 }}
-              transition={{ delay: 0.15 + i * 0.1, duration: 0.65, ease: EASE.snap }}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 + i * 0.08, duration: 0.5, ease: EASE.snap }}
             />
           ))}
 
             {/* ── LOGO SYSTEM ──────────────────────────────── */}
             <motion.div
               className="relative flex items-center justify-center w-32 h-32"
-              initial={{ opacity: 0, scale: 0.6, rotate: -8 }}
-              animate={{
-                opacity: phase === "content" ? 1 : 0,
-                scale: phase === "content" ? 1 : 0.75,
-                rotate: phase === "content" ? 0 : -8,
-              }}
-              transition={{ duration: 0.9, delay: 0.1, ease: EASE.snap }}
+              variants={contentItemVariants}
             >
 
               {/* outermost ring */}
@@ -358,7 +375,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
             </motion.div>
 
             {/* ── NAME WITH LETTER ANIMATION ───────────────── */}
-            <div className="flex flex-col items-center gap-1.5">
+            <motion.div className="flex flex-col items-center gap-1.5" variants={contentItemVariants}>
               <div className="flex overflow-hidden">
                 {NAME.map((ch, i) => (
                   <motion.span
@@ -374,11 +391,11 @@ export function Loader({ onDone }: { onDone: () => void }) {
                       display: ch === " " ? "inline-block" : undefined,
                       width: ch === " " ? "0.4em" : undefined,
                     }}
-                    initial={{ opacity: 0, y: 36, rotateX: -90 }}
-                    animate={phase === "content" ? { opacity: 1, y: 0, rotateX: 0 } : { opacity: 0, y: 36, rotateX: -90 }}
+                    initial={{ opacity: 0, y: 24, rotateX: -70 }}
+                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
                     transition={{
-                      delay: 0.25 + i * 0.055,
-                      duration: 0.55,
+                      delay: 0.15 + i * 0.045,
+                      duration: 0.5,
                       ease: EASE.smooth,
                     }}
                   >
@@ -388,9 +405,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
               </div>
               <motion.div
                 className="flex items-center gap-2"
-                initial={{ opacity: 0, y: 12 }}
-                animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-                transition={{ delay: 0.85, duration: 0.65, ease: EASE.out }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.55, ease: EASE.out }}
               >
                 <motion.div
                   className="w-1.5 h-1.5 rounded-full bg-green-400"
@@ -406,15 +423,13 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   transition={{ duration: 1.4, repeat: Infinity, delay: 0.7 }}
                 />
               </motion.div>
-            </div>
+            </motion.div>
 
             {/* ── CODE TERMINAL ────────────────────────────── */}
             <motion.div
               className="w-full rounded-xl overflow-hidden border border-border/50"
               style={{ background: "hsl(24 8% 6%)" }}
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={phase === "content" ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 24, scale: 0.97 }}
-              transition={{ delay: 0.35, duration: 0.75, ease: EASE.smooth }}
+              variants={contentItemVariants}
             >
               {/* title bar */}
               <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/40"
@@ -431,9 +446,9 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   <motion.div
                     key={i}
                     className="flex items-center gap-2.5"
-                    initial={{ opacity: 0, x: -16 }}
-                    animate={phase === "content" ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
-                    transition={{ delay: 0.5 + item.delay, duration: 0.55, ease: EASE.out }}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.35 + item.delay, duration: 0.45, ease: EASE.out }}
                   >
                     <span className="text-[10px] text-muted/30 w-4 text-right shrink-0">
                       {i + 1}
@@ -452,7 +467,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   className="flex items-center gap-2.5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 1.9 }}
+                  transition={{ delay: 1.6 }}
                 >
                   <span className="text-[10px] text-muted/30 w-4 text-right shrink-0">6</span>
                   <span className="text-[11px] text-muted/40">// </span>
@@ -466,12 +481,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
             </motion.div>
 
             {/* ── PROGRESS ─────────────────────────────────── */}
-            <motion.div
-              className="w-full"
-              initial={{ opacity: 0, y: 10 }}
-              animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-              transition={{ delay: 0.45, duration: 0.7, ease: EASE.out }}
-            >
+            <motion.div className="w-full" variants={contentItemVariants}>
               <div className="flex justify-between items-center mb-2">
                 <div className="flex items-center gap-1.5">
                   {[...Array(3)].map((_, i) => (
@@ -548,18 +558,16 @@ export function Loader({ onDone }: { onDone: () => void }) {
             {/* ── TECH STACK BADGES ────────────────────────── */}
             <motion.div
               className="flex flex-wrap justify-center gap-2"
-              initial={{ opacity: 0, y: 14 }}
-              animate={phase === "content" ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-              transition={{ delay: 0.7, duration: 0.75, ease: EASE.smooth }}
+              variants={contentItemVariants}
             >
               {["React.js", "Next.js", "TypeScript", "Tailwind"].map((tech, i) => (
                 <motion.span
                   key={tech}
                   className="text-[10px] font-semibold px-2.5 py-1 rounded-full border border-primary/25 text-primary/80"
                   style={{ background: "hsl(38 90% 55% / 0.06)" }}
-                  initial={{ opacity: 0, scale: 0.6, y: 8 }}
-                  animate={phase === "content" ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.6, y: 8 }}
-                  transition={{ delay: 0.85 + i * 0.1, duration: 0.55, ease: EASE.snap }}
+                  initial={{ opacity: 0, scale: 0.75 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.5 + i * 0.08, duration: 0.45, ease: EASE.snap }}
                   whileHover={{ scale: 1.1, borderColor: "hsl(38 90% 55% / 0.6)" }}
                 >
                   {tech}
@@ -567,16 +575,17 @@ export function Loader({ onDone }: { onDone: () => void }) {
               ))}
             </motion.div>
           </motion.div>
+          </>
             )}
           </AnimatePresence>
 
           {/* ── URL BAR ──────────────────────────────────────── */}
-          {(phase === "zoomout" || phase === "content") && (
+          {phase === "content" && (
           <motion.div
-            className="absolute bottom-6 flex items-center gap-2 z-20"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: phase === "content" ? 1 : 0, y: phase === "content" ? 0 : 10 }}
-            transition={{ delay: 0.6, duration: 0.8, ease: EASE.out }}
+            className="absolute bottom-6 flex items-center gap-2 z-30"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.6, ease: EASE.out }}
           >
             <motion.span
               className="w-1.5 h-1.5 rounded-full bg-green-400"
