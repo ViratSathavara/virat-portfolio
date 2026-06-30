@@ -10,7 +10,7 @@ const plusJakarta = Plus_Jakarta_Sans({
   weight: ["300", "400", "500", "600", "700", "800"],
 });
 
-const siteUrl = "https://viratsathavara.in";
+const siteUrl = "https://viratsathavara.info";
 const siteName = "Virat Sathavara | Frontend Engineer";
 
 export const metadata: Metadata = {
@@ -210,7 +210,7 @@ export default function RootLayout({
     sameAs: [
       "https://github.com/ViratSathavara",
       "https://www.linkedin.com/in/virat-sathavara-576109249/",
-      "https://viratsathavara.in/",
+      "https://viratsathavara.info/",
     ],
     knowsAbout: [
       "React.js",

@@ -652,7 +652,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
                   <div className="flex items-center gap-2 pb-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
                     <span className="text-[9px] sm:text-[10px] text-muted/50 font-mono tracking-[0.15em]">
-                      viratsathavara.in
+                      viratsathavara.info
                     </span>
                   </div>
                 </motion.div>

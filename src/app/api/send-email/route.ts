@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const now = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
     await transporter.sendMail({
-      from:    `"Portfolio – viratsathavara.in" <${SMTP_USER}>`,
+      from:    `"Portfolio – viratsathavara.info" <${SMTP_USER}>`,
       to:      RECIPIENT_EMAIL,
       replyTo: email,
       subject: `📬 New message from ${name} — Portfolio`,
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
         `──────────────────────────────`,
         `Time : ${now} (IST)`,
         `IP   : ${ip}`,
-        `Via  : viratsathavara.in`,
+        `Via  : viratsathavara.info`,
       ].join("\n"),
       html: `
 <!DOCTYPE html>
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
     </div>
   </div>
   <div class="footer">
-    <p>Sent from <a href="https://viratsathavara.in">viratsathavara.in</a>
+    <p>Sent from <a href="https://viratsathavara.info">viratsathavara.info</a>
     &nbsp;·&nbsp; ${now} IST &nbsp;·&nbsp; IP: ${ip}</p>
   </div>
 </div>

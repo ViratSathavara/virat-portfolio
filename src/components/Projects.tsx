@@ -172,7 +172,7 @@ const personalProjects: Project[] = [
     techType: "frontend",
     projectType: "personal",
     activelyWorking: true,
-    liveLink: "https://viratsathavara.in/",
+    liveLink: "https://viratsathavara.info/",
     sourceCode: "https://github.com/ViratSathavara/Virat-Portffolio",
     Icon: Globe,
     gradient: "from-blue-500/10 to-cyan-500/5",
